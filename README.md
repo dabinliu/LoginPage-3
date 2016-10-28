@@ -21,10 +21,10 @@
 					'password': 
 					},
 					async:false,
-					success:function(data){
+					success:function(){
 						
 					},
-					error:function(msg){
+					error:function(){
 						
 					}
 				});

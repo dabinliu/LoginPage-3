@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>注册</title>
+	<script type="text/javascript" src="jquery-1.11.1.js"></script>
+
+</head>
+<body>
+
+<form id="registerFomr" name="registerFomr" method="post" action="/register/register?ReturnUrl=http://www.xbhz.etaoshi.com">
+    <input name="__RequestVerificationToken" type="hidden" value="sDx75KNtcR44FkJMk23etOZIvTnbFYvamP12ej54ymGmTqsjaHirL2XVVz5zpNXtHZaaYZh8XlYtiAdg5kHC30NcDecG5qqvP5ccXmmFwOK3Pw7AVhO8dG3AJd1uNJcDTtMveg2" />
+    <div class="main">
+        <div class="login">
+            <h3>登录/注册</h3>
+            <div class="login_con">
+                <div class="login_left">
+                    <ul>
+                        <li><a href="/login/">用户登录</a></li>
+                        <li class="addli"><a href="">新用户注册</a></li>
+                    </ul>
+                    <div class="left_land">
+                        <span class="land_hy">如果您是<a class="color9">易淘食</a>的会员，可以直接登录哦~</span>
+                       </br>
+                        <span class="land_ets">
+                            <a href="/login/">
+                                <input type="checkbox" class="fx">
+                            </a> 我是易淘食会员 
+                        </span>
+                    </div>
+                    <div class="land bl">
+                        <span class="land_ps">
+                            <span class="land_lf">手机号：</span>
+                            <span class="land_zh">
+                                <input type="text" class="zcinput"  name="txtMobile" id="txtMobile">
+                                <input type="button" class="zcbut" value="发送验证码" id="linkSendValidateCode">
+                            </span>
+                        </span>
+                        </br>
+                        <span class="land_cw" id="spErrorValidateCodeMessage"></span>
+                        <span class="land_ps">
+                            <span class="land_lf">验证码：</span>
+                            <span class="land_mm">
+                                <input type="text" class="zhinput" id="txtValidateCode" name="txtValidateCode">
+                            </span>
+                        </span>
+                        </br>
+                        <span class="land_cw" id="spErrorMobileMessage"></span>
+                        <span class="land_ps">
+                            <span class="land_lf">密码：</span>
+                            <span class="land_mm">
+                                <input type="password" class="zhinput" id="pwdPassword" name="pwdPassword">
+                            </span>
+                        </span>
+                        </br>
+                        <span class="land_cw" id="spErrorPasswordMessage"></span>
+                        <span class="land_ps">
+                            <span class="land_lf">确认密码：</span>
+                            <span class="land_mm">
+                                <input type="password" class="zhinput"id="pwdRePassword" name="pwdRePassword">
+                            </span>
+                        </span>
+                        <span class="land_cw" id="spReErrorPasswordMessage"></span>
+                        <input type="submit" class="bg land_qd" value="注册">
+                    </div>
+				</div>
+            </div>
+        </div>
+    </div>
+</form>
+
+        <div id="go_top"><a href="javascript:;">返回顶部</a></div>
+
+
+<script>
+	//需求：注册页面：新用户注册
+	//全局变量，是否发送语音短信
+	var isVoiceSms=false;
+
+	//弹出框
+	function showDialog(id){
+		$('#ets-'+id).Dialog({
+			clickPosition:{position:e,bind:true},//点击对象
+			winBar:'#mask',//蒙层
+			winPage:'.popup',//弹层
+			colosePanel:'#closex',//关闭按钮
+			colosebackCall:callBack,//回调函数
+			winBarbindClick:false//是否点击蒙层 关闭 默认true
+		});
+	};
+
+	//页面加载时调用
+	$(document).ready(function(){
+		//发送按钮有效
+		$('#smtSendCheck').attr('disabled',false);
+		//给发送按钮添加发送前验证
+		$('#smtSendCheck').bind('click',sendCheck);
+		//发送验证码
+		$('#linkSendWalidateCode').bind('click',choiceSendType);
+		//上次如果是post给后台并且出错，提示错误
+		var errorMessage='';
+		//如果有错误，提示。
+		if(errorMessage){
+			alert(errorMessage);
+		}
+		//给手机文本框，邮箱文本框，验证码文本框，密码，确认密码加入验证
+		$('#txtMobile').bind('blur',checkMobile);
+		$('#txtEmail').bind('blur',checkEmail);
+		$('#txtValidateCode').bind('blur',checkValidateCode);
+		$('#pwdPassword').bind('blur',checkPassWord);
+		$('#pwdRePassword').bind('blur',checkRePassword);
+
+		//发送语音短信弹出层点击确定
+		$('#voiceSender').bind('click',function(){
+			$('#ets-message').hide();
+			resetValidateCode();
+		});
+
+		//加载验证码
+		ChangeCodeRegister();
+	});
+
+	//验证码刷新
+	function ChangeCodeRegister(){
+		var time=new Date();//时间为了防止有缓存
+		$('#vcode').attr('src','/Login/GetValidateCode/'+time.getTime());
+	}
+
+	//选择发送类型
+	function choiceSendType(){
+		//获取输入的手机号
+		var txtValidateCode=$('#txtMobile').val();
+		if(txtValidateCode==''){
+			//如果手机号输入为空
+			$('#spErrorValidateCodeMessage').text('请输入手机号码！');
+		}
+		else{
+			//发送验证码先检查手机
+			if(checkMobile()){
+				//如果还在倒计时，不发送验证码
+				if(!timer){
+					if(isVoiceSms){
+						showDialog('message');
+					} else {
+						resetValidateCode();
+						isVoiceSms=false;
+					}
+				}
+			}
+			else {
+				$('#spErrorValidateCodeMessage').text('请输入正确的手机号码');
+			}
+		}
+	}
+
+	//发送前验证，通过ajax发给后台
+	function sendCheck(){
+		$('#smtSendCheck').attr('disabled',true);
+		var validate=checkEmail()&&checkMobile()&&checkPassword()&&checkValidateCode();
+
+		//直接用js验证邮箱，手机，密码
+		if(validate){
+			//这是一个同步的ajax方法
+			$.ajax({
+				url:'/Register/Validate',
+				type:'post',
+				data:{
+					'mobile':$.trim($('#txtMobile').val()),
+					'email':$.trim($('#txtEmail').val()),
+					'validateCode':$.trim($('#txtValidateCode').val()),
+					'password':$('#pwdPassword').val()
+					},
+					async:false,
+					success:function(data){
+						//如果成功
+						if(data.IsSuccess){
+							$('#registerFomr').submit();
+							$('#spErrorMobileMessage').text();
+							$('#spErrorEmailMessage').text();
+							$('#spErrorValidateCodeMessage').text();
+						}else{
+							//显示错误信息
+							$('#spErrorMobileMessage').text(data.ErrorMessageDictionary.ErrorMobileMessage);
+							$('#spErrorEmailMessage').text(data.ErrorMessageDictionary.ErrorEmailMessage);
+							$('#spErrorValidateCodeMessage').text(data.ErrorMessageDictionary.ErrorValidateCodeMessage);
+						}
+					},
+					error:function(msg){
+						alert(msg.responseText);
+					}
+			});
+		}
+		//验证失败，设置提交按钮可以使用
+		if(!validate){
+			$('#smtSendCheck').attr('disabled',false);
+		}
+		return validate;
+	}
+
+	//验证邮箱
+	function checkEmail(){
+		var isValidate=true;
+		$('#spErrorEmailMessage').text('');
+		//验证通过
+		if($('#txtEmail').val().length>0){
+			var myreg=/^([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+@([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+\.[a-zA-Z]{2,3}$/;
+			if(myreg.test($('#txtEmail').val())){
+				$('#spErrorEmailMessage').text('');
+			}else{
+				$('#spErrorEmailMessage').text('请输入正确的邮箱');
+				isValidate=false;
+			}
+		}
+		return isValidate;
+	}
+
+	//验证手机
+	function checkMobile(){
+		var isValidate=true;
+		var myreg= /^(((13[0-9]{1})|(15[0-9]{1})|(18[0-9]{1}))+\d{8})$/;
+		//验证通过
+		if(myreg.test($('#txtMobile').val())){
+			$('#spErrorMobileMessage').text('');
+		}else{
+			$('#spErrorMobileMessage').text('请输入正确的手机号码');
+			isValidate=false;
+		}
+		return isValidate;
+	}
+
+	//验证密码
+	function checkPassword(){
+		var isValidate=true;
+		//密码长度小于6，错误
+		if($('#pwdPassword').val().length<6){
+			$('#spErrorPasswordMessage').text('请输入6位以上密码！');
+			isValidate=false;
+		}
+		else{
+			if($('#pwdRePassword').val().length>0){
+				if($('#pwdPassword').val()!=$('#pwdRePassword').val()){
+					//两次密码输入不一致
+					$('#spErrorPasswordMessage').text('两次密码输入不一致');
+					isValidate=false;
+				}
+				else{
+					//输入正确
+					$('#spErrorPasswordMessage').text('');
+				}
+			}
+			else{
+				//输入正确
+				$('#spErrorPasswordMessage').text('');
+			}
+		}
+		return isValidate;
+	}
+
+	//验证重复密码
+	function checkRePassword(){
+		var isValidate=true;
+		if($('#pwdPassword').val()!=$('#pedRePassword').val()){
+			//两次输入密码不一致
+			$('#spReErrorPasswordMessage').text('两次密码输入不一致！');
+			isValidate=false;
+		}
+		else{
+			//输入正确
+			$('#spReErrorPasswordMessage').text('');
+		}
+		return isValidate;
+	}
+
+	//验证验证码
+	function checkValidateCode(){
+		var isValidate=true;
+		var myreg=/^(\d{4})$/;
+		//验证验证码正确
+		if(myreg.test($('#txtValidateCode').val())){
+			$('#spErrorValidateCodeMessage').text('');
+		}else{
+			$('#spErrorValidateCodeMessage').text('验证码错误！');
+			isValidate=false;
+		}
+		return isValidate;
+	}
+
+	//ajax发送验证码
+	function resetValidateCode(){
+		//设置按钮无效
+		$('#linkSendValidateCode').attr('disabled',true);
+		//倒计时
+		hold(60);
+		var txtValidateCode=$('#txtValidateCode').val();
+
+		$.ajax({
+			url:'/Register/ResetValidateCode',
+			type:'post',
+			data:{
+				'mobile':$.trim($('#txtMobile').val()),
+				txtValidateCode:txtValidateCode,
+				'isVoiceSms':isVoiceSms
+			},
+			success:function(data){
+				//发送成功
+				if(data.IsSuccess){
+					$('#validateInfo').text('验证码已发送扫您的手机，30分钟内输入有效，请勿泄露,如您长时间没有收到效验码，请核对您的手机号并点击\"获取验证码\"。');
+					$('#spErrorValidateCodeMessage').text('');
+					ChangeCodeRegister();
+				}else{
+					$('#spErrorValidateCodeMessage').text(data.Message);
+					clearHold();
+				}
+			},
+			error:function(msg){
+				alert(msg.responseText);
+				clearHold();
+			}
+		});
+	}
+	
+	//计时器
+	var timer=null;
+	//倒计时
+	function hold(seconds){
+		if(seconds!=0){
+			$('#linkSendValidateCode').val("倒计时("+seconds+")秒");
+			timer=setTimeout(function(){
+				hold(-seconds);
+			},1000);
+		}else{
+			clearHold();
+		}
+	}
+
+	//清除计时器
+	function clearHold(){
+		clearTimeout(timer);
+		timer=null;
+		$('#linkSendValidateCode').removeAttr('disabled');
+		$('#linkSendValidateCode').val('获取验证码');
+	}
+</script>
+
+<script type="text/javascript">
+	//IEplaceHolder兼容
+	$(function(){
+		$('[placeholder]').each(function(){
+			var placeStr=$(this).attr('placeholder');
+			if($(this).val()==''){
+				$(this).val(placeStr);
+			}
+			$(this).focus(function(){
+				if($(this).val()==placeStr){
+					$(this).val('');
+				}
+			}).blur(function(){
+				if($(this).val()==''){
+					$(this).val(placeStr);
+				}
+			})
+		})
+	})
+</script>
+
+<script type="text/javascript">
+	//登录页面
+	showLogin();
+
+	function showLogin(){
+		var strHtml="<a href=\"/login/index\">登录</a>|< a href=\"/register/index\">注册</a>|<a href=\"#\" rel=\"sidebar\" id=\"saveSite\" onclick=\"favSite()\">收藏本站</a>";
+		$.post(
+			'/Login/isLogin',
+			{t:Math.random()},
+			function(data){
+				if(data!='0'){
+					var OrderPage=$('#OrderPage').val();
+					if(OrderPage!='yes'){
+						strHtml="<div class=\"user_bar\"><a href=\"/my/index\">"+data+"</a>&nbsp;<span>欢迎来西北汉子</span><a href=\"javascript:;\" onclick=\"loginOff()\">[退出]</a>";
+					}
+					else{
+						strHtml="<div class=\"user_bar\"><span>欢迎来到西北汉子</span>";
+					}
+				}
+				$('.head_lj').html(strHtml);
+		})
+	}
+
+	function loginOff(){
+		$.post('/Login/logoff',{},function (data){
+			showLogin();
+		})
+	}
+
+	//收藏本站
+	function favSite(){
+		var title='西北汉子';
+		var URL='http://www.xbhz.etaoshi.com/';
+
+		try{
+			window.extemal.AddFavorite(URL,title);//IE
+		}catch(e){
+			try{
+				window.sidebar.addPanel(title,URL,"");//firefox
+			}catch(e){
+				alert('请按Ctrl+D收藏到文件夹');
+			}
+		}
+	}
+
+</script>
+
+
+
+	
+</body>
+</html>

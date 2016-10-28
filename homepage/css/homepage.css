@@ -1,0 +1,215 @@
+/*页面初始化*/
+
+/*css 初始化 */
+html, body, ul, li, ol, dl, dd, dt, p, h1, h2, h3, h4, h5, h6, form, fieldset, legend, img {
+    margin: 0;
+    padding: 0;
+}
+
+fieldset, img, input, button { 			/*fieldset组合表单中的相关元素*/
+    border: none;
+    padding: 0;
+    margin: 0;
+    outline-style: none;
+}
+
+ul, ol {
+    list-style: none;				/*清除列表风格*/
+}
+
+input {
+    padding-top: 0;
+    padding-bottom: 0;
+    font-family: "SimSun", "宋体";
+}
+
+select, input {
+    vertical-align: middle;
+}
+
+select, input, textarea {
+    font-size: 12px;
+    margin: 0;
+}
+
+textarea {
+    resize: none;
+}
+
+/*防止多行文本框拖动*/
+img {
+    border: 0;
+    vertical-align: middle;
+}
+
+/*  去掉图片低测默认的3像素空白缝隙*/
+table {
+    border-collapse: collapse;			/*合并外边线*/
+}
+
+body {
+    font-family: "Helvetica Neue", Helvetica, Microsoft Yahei,
+        Hiragino Sans GB, WenQuanYi Micro Hei, sans-serif;
+    color: #666;
+    background: #fff;
+}
+
+.clearfix:before, .clearfix:after {
+    content: "";
+    display: table;
+}
+
+.clearfix:after {
+    clear: both;
+}
+
+.clearfix {
+    *zoom: 1; /*IE/7/6*/
+}
+
+a {
+    color: #666;
+    text-decoration: none;
+}
+
+a:hover {
+    color: #488BFB;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    text-decoration: none;
+    font-weight: normal;
+    font-size: 100%;
+}
+
+s, i, em {
+    font-style: normal;
+    text-decoration: none;
+}
+
+.col-etao {
+    color: #488BFB !important;
+}
+
+/*公共类*/
+.etao-wrap {
+    /*版心 提取 */
+    width: 1050px;
+    margin: 0 auto;
+}
+
+.hide {
+    display: none
+}
+
+.fl{
+    float: left;
+}
+
+.fr{
+    float: right;
+}
+
+
+/*易淘首页样式*/
+.etao-homepage-nav{
+    padding:15px 0;
+    border-bottom: 1px solid #488BFB;
+}
+
+.etao-homepage-nav .etao-logo{
+    display: block;
+    width: 72px;
+    height: 47px;
+    background: url('../imgs/logo.png-v=0.0.3.png') no-repeat;
+    text-indent: -9999em;
+}
+
+.etao-homepage-nav .nav-list li{
+    float: left;
+    padding: 15px 65px 0 0;
+}
+.etao-homepage-nav .nav-list li .active{
+    color: #488BFB;
+}
+
+/*轮播图样式*/
+.etao-homepage-banner{
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+}
+.etao-homepage-banner .banner-slide{
+    width: 400%;
+}
+.etao-homepage-banner .banner-slide li{
+    float: left;
+    position: relative;
+    width: 25%;
+    margin-right: -25%;
+}
+
+.etao-homepage-banner .banner-slide li img{
+    width: 100%;
+    display: block;
+}
+
+.etao-homepage-banner .banner-list{
+    position: absolute;
+    left: 50%;
+    margin-left: -46px;
+    bottom: 20px;
+    z-index: 2;
+}
+
+.etao-homepage-banner .banner-list li{
+    float: left;
+    margin-left: 12px;
+    background-color: #fff;
+    border-radius:50%;
+    width: 11px;
+    height: 11px;
+    opacity: 0.3;
+    text-indent: -9999px;
+}
+
+.etao-homepage-banner .banner-list li.active{
+    opacity: 1;
+}
+
+.etao-homepage-banner .banner-arrows{
+    width: 90%;
+    margin-left: 88px;
+    position: absolute;
+    top: 50%;
+    margin-top: -29px;
+    z-index: 2;
+}
+
+.etao-homepage-banner .banner-arrows .arrows-left{
+    position: absolute;
+    left: 88px;
+}
+
+.etao-homepage-banner .banner-arrows .arrows-left a{
+    display: block;
+    width: 33px;
+    height: 57px;
+    background: url("../imgs/slide-pre.png-v=0.0.3.png") no-repeat left;
+}
+
+.etao-homepage-banner .banner-arrows .arrows-right{
+    position: absolute;
+    right: 88px;
+}
+
+.etao-homepage-banner .banner-arrows .arrows-right a{
+    display: block;
+    width: 33px;
+    height: 57px;
+    background: url("../imgs/slide-next.png-v=0.0.3.png") no-repeat right;
+}
+
+
+
+

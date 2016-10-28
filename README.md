@@ -10,3 +10,20 @@
 + 验证确认密码（两次密码输入一致）
 
 ## 发送验证码，通过ajax发送给后台
+$.ajax({
+				url:' ',
+				type:'post',
+				data:{
+					'mobile': ,
+					'email': ,
+					'validateCode': ,
+					'password': 
+					},
+					async:false,
+					success:function(data){
+						
+					},
+					error:function(msg){
+						
+					}
+			});
